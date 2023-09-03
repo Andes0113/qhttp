@@ -71,16 +71,16 @@ func pathToStack(path string) []string {
 	return path_arr
 }
 
-func (rt *RouteTree) Register(req_type string, path string, new_func func(res http.ResponseWriter, req *http.Request)) {
+func (rt *RouteTree) register(req_type string, path string, new_func func(res http.ResponseWriter, req *http.Request)) {
 	rt.Root.registerFunction(req_type, pathToStack(path), new_func)
 }
 
-func (rt *RouteTree) GetRouteFunction(req_type string, path string) (func(res http.ResponseWriter, req *http.Request), error) {
+func (rt *RouteTree) getRouteFunction(req_type string, path string) (func(res http.ResponseWriter, req *http.Request), error) {
 	return rt.Root.findFunction(req_type, pathToStack(path))
 }
 
 func (r *RouteTree) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-	ret_func, err := r.GetRouteFunction(req.Method, req.URL.Path)
+	ret_func, err := r.getRouteFunction(req.Method, req.URL.Path)
 	if err != nil {
 		http.Error(res, "No matching route found", http.StatusNotFound)
 		return
@@ -88,7 +88,7 @@ func (r *RouteTree) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	ret_func(res, req)
 }
 
-func CreateRouteTree() *RouteTree {
+func createRouteTree() *RouteTree {
 	// Create root node for RouteTree
 	root := new(Node)
 	(*root).path_name = "/"
@@ -102,6 +102,6 @@ func CreateRouteTree() *RouteTree {
 	return rt
 }
 
-func (rt *RouteTree) Preorder() {
+func (rt *RouteTree) preorder() {
 	PreorderTraverse(rt.Root)
 }
