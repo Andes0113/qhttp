@@ -5,7 +5,7 @@ import (
 )
 
 type Router struct {
-	tree *RouteTree
+	tree *routeTree
 }
 
 func HttpRouter() *Router {

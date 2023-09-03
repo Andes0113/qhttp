@@ -51,15 +51,15 @@ func (n *Node) findFunction(req_type string, path []string) (func(res http.Respo
 	return (*child).findFunction(req_type, path[1:])
 }
 
-func PreorderTraverse(curr *Node) {
+func preorderTraverse(curr *Node) {
 	fmt.Print((*curr).path_name)
 	fmt.Println("\t", (*curr).registered_functions)
 	for _, n := range (*curr).children {
-		PreorderTraverse(n)
+		preorderTraverse(n)
 	}
 }
 
-type RouteTree struct {
+type routeTree struct {
 	Root *Node
 }
 
@@ -71,15 +71,15 @@ func pathToStack(path string) []string {
 	return path_arr
 }
 
-func (rt *RouteTree) register(req_type string, path string, new_func func(res http.ResponseWriter, req *http.Request)) {
+func (rt *routeTree) register(req_type string, path string, new_func func(res http.ResponseWriter, req *http.Request)) {
 	rt.Root.registerFunction(req_type, pathToStack(path), new_func)
 }
 
-func (rt *RouteTree) getRouteFunction(req_type string, path string) (func(res http.ResponseWriter, req *http.Request), error) {
+func (rt *routeTree) getRouteFunction(req_type string, path string) (func(res http.ResponseWriter, req *http.Request), error) {
 	return rt.Root.findFunction(req_type, pathToStack(path))
 }
 
-func (r *RouteTree) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+func (r *routeTree) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	ret_func, err := r.getRouteFunction(req.Method, req.URL.Path)
 	if err != nil {
 		http.Error(res, "No matching route found", http.StatusNotFound)
@@ -88,7 +88,7 @@ func (r *RouteTree) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	ret_func(res, req)
 }
 
-func createRouteTree() *RouteTree {
+func createRouteTree() *routeTree {
 	// Create root node for RouteTree
 	root := new(Node)
 	(*root).path_name = "/"
@@ -96,12 +96,12 @@ func createRouteTree() *RouteTree {
 	(*root).registered_functions = make(map[string]func(res http.ResponseWriter, req *http.Request))
 
 	// Create RouteTree
-	rt := new(RouteTree)
+	rt := new(routeTree)
 	rt.Root = root
 
 	return rt
 }
 
-func (rt *RouteTree) preorder() {
-	PreorderTraverse(rt.Root)
+func (rt *routeTree) preorder() {
+	preorderTraverse(rt.Root)
 }
